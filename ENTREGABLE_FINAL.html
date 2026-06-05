@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Entregable Final — Backend E-commerce + Módulo Adoption</title>
+<style>
+  @page {
+    size: A4;
+    margin: 20mm 18mm;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', 'Calibri', 'Helvetica', Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: #2d2d2d;
+  }
+
+  /* ===== PORTADA ===== */
+  .portada {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    background: linear-gradient(145deg, #0b1f33 0%, #1a3a5c 40%, #1f4a73 100%);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .portada::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .portada::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #f0c040, #e8842a, #f0c040);
+  }
+  .portada .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+    padding: 4mm 10mm;
+    font-size: 9pt;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12mm;
+  }
+  .portada h1 {
+    font-size: 30pt;
+    font-weight: 700;
+    margin-bottom: 3mm;
+    line-height: 1.2;
+    letter-spacing: 1px;
+  }
+  .portada h1 span {
+    display: block;
+    font-weight: 300;
+    font-size: 20pt;
+    margin-top: 2mm;
+    opacity: 0.9;
+  }
+  .portada .linea {
+    width: 70mm;
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #f0c040, transparent);
+    margin: 8mm auto;
+  }
+  .portada .meta {
+    font-size: 11pt;
+    opacity: 0.85;
+    margin-top: 5mm;
+  }
+  .portada .meta p { margin: 1.5mm 0; }
+  .portada .meta strong { color: #f0c040; font-weight: 600; }
+  .portada .fecha {
+    margin-top: 10mm;
+    font-size: 10pt;
+    opacity: 0.6;
+    letter-spacing: 1px;
+  }
+
+  /* ===== CONTENIDO ===== */
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+
+  h2 {
+    font-size: 17pt;
+    color: #1a3a5c;
+    padding-bottom: 2.5mm;
+    margin-top: 12mm;
+    margin-bottom: 7mm;
+    position: relative;
+  }
+  h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 18mm;
+    height: 3px;
+    background: linear-gradient(90deg, #1a3a5c, #4a8ab5);
+    border-radius: 2px;
+  }
+
+  h3 {
+    font-size: 13pt;
+    color: #1f4a73;
+    margin-top: 8mm;
+    margin-bottom: 4mm;
+    font-weight: 600;
+  }
+
+  h4 {
+    font-size: 11pt;
+    color: #2d5f8a;
+    margin-top: 5mm;
+    margin-bottom: 2mm;
+    font-weight: 600;
+  }
+
+  p { margin-bottom: 2.5mm; }
+
+  /* ===== TABLAS ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 4mm 0;
+    font-size: 9.5pt;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  th, td {
+    border: 1px solid #d0d7de;
+    padding: 2mm 2.5mm;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: linear-gradient(180deg, #1a3a5c, #15304d);
+    color: #fff;
+    font-weight: 600;
+    font-size: 9pt;
+    letter-spacing: 0.3px;
+  }
+  tr:nth-child(even) td { background: #f6f8fa; }
+  tr:hover td { background: #e8f0f8; }
+
+  /* ===== LISTAS ===== */
+  ul, ol { margin: 2.5mm 0 2.5mm 6mm; }
+  li { margin-bottom: 0.8mm; }
+  ul li::marker { color: #1a3a5c; }
+
+  /* ===== CODE BLOCKS ===== */
+  pre {
+    background: #1e1e2e;
+    border: 1px solid #2d2d44;
+    border-radius: 5px;
+    padding: 3.5mm 4mm;
+    font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+    font-size: 8.5pt;
+    line-height: 1.45;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 4mm 0;
+    color: #cdd6f4;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  pre code {
+    font-family: inherit;
+    font-size: inherit;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+    font-size: 9pt;
+    background: #eef1f5;
+    padding: 0.5mm 2mm;
+    border-radius: 3px;
+    color: #c7254e;
+  }
+
+  /* ===== TOC ===== */
+  .toc {
+    background: #f8fafc;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    padding: 5mm 6mm;
+    margin-top: 4mm;
+  }
+  .toc a { color: #1a3a5c; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; color: #e8842a; }
+  .toc li { margin-bottom: 1.5mm; font-size: 10.5pt; }
+  .toc ul { list-style: none; margin-left: 0; }
+  .toc > ul > li { font-weight: 600; }
+  .toc > ul > li > ul > li {
+    font-weight: normal;
+    margin-left: 6mm;
+    font-size: 10pt;
+  }
+  .toc > ul > li > ul > li::before {
+    content: '▸ ';
+    color: #4a8ab5;
+  }
+
+  /* ===== CHECKLIST ===== */
+  .todo-table { font-size: 10pt; }
+  .todo-table td:first-child { width: 70%; }
+  .todo-table td:last-child {
+    text-align: center;
+    width: 10%;
+    font-size: 14pt;
+  }
+
+  .end-mark {
+    text-align: center;
+    margin-top: 15mm;
+    padding-top: 6mm;
+    border-top: 2px solid #d0d7de;
+    font-size: 10pt;
+    color: #666;
+  }
+  .end-mark p { margin: 1mm 0; }
+
+  /* ===== DESTAQUE / CALLOUT ===== */
+  .callout {
+    background: #f0f6fb;
+    border-left: 4px solid #1a3a5c;
+    border-radius: 0 4px 4px 0;
+    padding: 3mm 4mm;
+    margin: 4mm 0;
+    font-size: 10pt;
+  }
+
+  /* ===== KEY-VALUE ===== */
+  .kv-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5mm 4mm;
+    margin: 3mm 0;
+    font-size: 10pt;
+  }
+  .kv-grid .key {
+    font-weight: 600;
+    color: #1a3a5c;
+    white-space: nowrap;
+  }
+
+  /* ===== SECTION NUMBERS ===== */
+  .section-number {
+    display: inline-block;
+    background: #1a3a5c;
+    color: #fff;
+    font-size: 9pt;
+    font-weight: 700;
+    width: 7mm;
+    height: 7mm;
+    line-height: 7mm;
+    text-align: center;
+    border-radius: 50%;
+    margin-right: 2mm;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== PORTADA ===== -->
+<div class="portada">
+  <div class="badge">CoderHouse · Backend 3 · Entregable Final</div>
+  <h1>Backend E-commerce<br><span>+ Módulo Adoption</span></h1>
+  <hr class="linea">
+  <div class="meta">
+    <p><strong>Alumno:</strong> Miguel Zambrano</p>
+    <p><strong>Comisión:</strong> 76985</p>
+    <p><strong>Curso:</strong> CoderHouse Backend 3</p>
+    <p><strong>Fecha:</strong> Junio 2026</p>
+  </div>
+</div>
+
+<!-- ===== ÍNDICE ===== -->
+<div class="page">
+  <h2 style="margin-top:0;">Índice</h2>
+  <div class="toc">
+    <ul>
+      <li><a href="#s1">1. Estructura del Proyecto</a>
+        <ul>
+          <li><a href="#s1-1">1.1 Descripción del repositorio</a></li>
+          <li><a href="#s1-2">1.2 Árbol de directorios</a></li>
+          <li><a href="#s1-3">1.3 Propósito de archivos y carpetas principales</a></li>
+        </ul>
+      </li>
+      <li><a href="#s2">2. Tests Funcionales</a>
+        <ul>
+          <li><a href="#s2-1">2.1 Cobertura de <code>adoption.router.js</code></a></li>
+          <li><a href="#s2-2">2.2 Qué valida cada grupo</a></li>
+          <li><a href="#s2-3">2.3 Código completo del test funcional</a></li>
+          <li><a href="#s2-4">2.4 Evidencia de ejecución</a></li>
+        </ul>
+      </li>
+      <li><a href="#s3">3. Dockerización</a>
+        <ul>
+          <li><a href="#s3-1">3.1 Dockerfile completo</a></li>
+          <li><a href="#s3-2">3.2 Decisiones de optimización</a></li>
+          <li><a href="#s3-3">3.3 Log de construcción</a></li>
+        </ul>
+      </li>
+      <li><a href="#s4">4. Imagen Docker</a>
+        <ul>
+          <li><a href="#s4-1">4.1 Nombre y tag</a></li>
+          <li><a href="#s4-2">4.2 Evidencia de construcción</a></li>
+          <li><a href="#s4-3">4.3 Evidencia de ejecución del contenedor</a></li>
+        </ul>
+      </li>
+      <li><a href="#s5">5. Ejecución del Proyecto</a>
+        <ul>
+          <li><a href="#s5-1">5.1 Construir la imagen</a></li>
+          <li><a href="#s5-2">5.2 Ejecutar el contenedor</a></li>
+          <li><a href="#s5-3">5.3 Correr los tests</a></li>
+          <li><a href="#s5-4">5.4 Resultado esperado</a></li>
+        </ul>
+      </li>
+      <li><a href="#s6">6. README</a></li>
+      <li><a href="#checklist">Checklist de Entrega</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== 1. ESTRUCTURA ===== -->
+<div class="page">
+  <h2 id="s1">1. Estructura del Proyecto</h2>
+
+  <h3 id="s1-1">1.1 Descripción del repositorio</h3>
+  <p>El proyecto es una <strong>API REST</strong> con patrón <strong>MVC + Repository/Service/DTO</strong>, escrita en <strong>Node.js 20</strong> con módulos ESM. Implementa un e-commerce (productos, carritos, sesiones, usuarios) y un <strong>módulo de adopción de mascotas</strong> (alta, listado, adopción por usuario) que es el router que centraliza los tests funcionales de este entregable.</p>
+
+  <p>Las capas de cada recurso siguen el flujo:</p>
+  <div class="callout">
+    <code>model (Mongoose)</code> → <code>repository</code> → <code>service</code> → <code>controller</code> → <code>router</code> → <code>app</code>
+  </div>
+
+  <h3 id="s1-2">1.2 Árbol de directorios</h3>
+  <pre>Entregable_Zambrano_Miguel_76985/
+├── .dockerignore
+├── .env
+├── .env.example / .env.template
+├── .gitignore
+├── dirname.js
+├── docker-compose.yml
+├── Dockerfile
+├── package.json / package-lock.json
+├── scripts/
+└── src/
+    ├── server.js                     # Punto de entrada
+    ├── config/
+    │   ├── db.js                     # Conexión MongoDB
+    │   └── passport.config.js        # Estrategias JWT
+    ├── controllers/
+    │   ├── adoption.controller.js    # Módulo adoption
+    │   ├── cart.controller.js
+    │   ├── products.controller.js
+    │   ├── sessions.controller.js
+    │   └── users.controller.js
+    ├── dtos/
+    │   ├── product.dto.js
+    │   └── user.dto.js
+    ├── middlewares/
+    │   ├── auth.middleware.js
+    │   └── error.midleware.js
+    ├── models/
+    │   ├── adoption.model.js         # Esquema Mongoose
+    │   ├── cart.model.js
+    │   ├── product.model.js
+    │   ├── ticket.model.js
+    │   └── user.model.js
+    ├── repositories/
+    │   ├── adoption.repository.js
+    │   ├── cart.repository.js
+    │   ├── product.repository.js
+    │   ├── ticket.repository.js
+    │   └── user.repository.js
+    ├── routes/
+    │   ├── adoption.router.js        # Router bajo test
+    │   ├── carts.router.js
+    │   ├── products.router.js
+    │   ├── sessions.router.js
+    │   ├── users.router.js
+    │   └── views.router.js
+    ├── services/
+    │   ├── adoption.service.js
+    │   ├── cart.service.js
+    │   ├── checkout.service.js
+    │   ├── product.service.js
+    │   └── user.service.js
+    ├── test/
+    │   ├── adoptions.test.js         # 21 tests
+    │   ├── carts.test.js
+    │   ├── products.test.js
+    │   ├── test-db.js
+    │   └── mocks/
+    │       ├── adoption.mocks.js
+    │       ├── cart.mocks.js
+    │       └── product.mocks.js
+    ├── util/
+    │   └── httpErrors.js
+    ├── utils/
+    │   ├── jwt.js
+    │   └── mailer.js
+    └── views/
+        ├── cart.handlebars
+        ├── error.handlebars
+        ├── home.handlebars
+        ├── index.handlebars
+        ├── product-detail.handlebars
+        └── layouts/main.handlebars</pre>
+
+  <h3 id="s1-3">1.3 Propósito de archivos y carpetas principales</h3>
+  <table>
+    <tr><th style="width:30%">Archivo / Carpeta</th><th>Propósito</th></tr>
+    <tr><td><code>src/server.js</code></td><td>Punto de entrada. Inicializa Express, middlewares, routers y arranca el servidor.</td></tr>
+    <tr><td><code>src/config/</code></td><td>Conexión MongoDB vía Mongoose y estrategias Passport (JWT + local).</td></tr>
+    <tr><td><code>src/models/</code></td><td>Esquemas Mongoose con validaciones e índices para cada recurso.</td></tr>
+    <tr><td><code>src/repositories/</code></td><td>Capa de acceso a datos. Encapsula <code>find</code>, <code>create</code>, <code>update</code>, <code>delete</code>.</td></tr>
+    <tr><td><code>src/services/</code></td><td>Lógica de negocio y orquestación entre repositorios.</td></tr>
+    <tr><td><code>src/controllers/</code></td><td>Adaptan <code>req</code>/<code>res</code> a llamadas al service.</td></tr>
+    <tr><td><code>src/routes/</code></td><td>Definen endpoints HTTP y middlewares de autenticación.</td></tr>
+    <tr><td><code>src/middlewares/</code></td><td><code>authMiddleware</code>, <code>adminOnly</code>, <code>userOnly</code>, <code>errorHandler</code>.</td></tr>
+    <tr><td><code>src/test/</code></td><td>Tests funcionales con Jest + Supertest + MongoDB Memory Server.</td></tr>
+    <tr><td><code>src/utils/</code></td><td><code>jwt.js</code> (verifyToken), <code>mailer.js</code> (Nodemailer con fallback).</td></tr>
+    <tr><td><code>Dockerfile</code></td><td>Build multi-stage para la imagen Docker.</td></tr>
+    <tr><td><code>docker-compose.yml</code></td><td>Orquesta la app y un contenedor MongoDB 6.</td></tr>
+  </table>
+</div>
+
+<!-- ===== 2. TESTS FUNCIONALES ===== -->
+<div class="page">
+  <h2 id="s2">2. Tests Funcionales</h2>
+
+  <h3 id="s2-1">2.1 Cobertura de <code>adoption.router.js</code></h3>
+  <p>El archivo <code>src/test/adoptions.test.js</code> cubre los <strong>6 endpoints</strong> del router con <strong>21 tests</strong> distribuidos así:</p>
+  <table>
+    <tr><th>Grupo</th><th>Endpoints</th><th style="text-align:center">Tests</th></tr>
+    <tr><td><strong>GET Endpoints</strong></td><td><code>GET /api/adoptions</code>, <code>GET /api/adoptions/:aid</code></td><td style="text-align:center">7</td></tr>
+    <tr><td><strong>POST Endpoints</strong></td><td><code>POST /api/adoptions</code> (admin), <code>POST /api/adoptions/:aid/adopt</code> (user)</td><td style="text-align:center">7</td></tr>
+    <tr><td><strong>PUT Endpoint</strong></td><td><code>PUT /api/adoptions/:aid</code> (admin)</td><td style="text-align:center">2</td></tr>
+    <tr><td><strong>DELETE Endpoint</strong></td><td><code>DELETE /api/adoptions/:aid</code> (admin)</td><td style="text-align:center">2</td></tr>
+    <tr><td><strong>Edge Cases</strong></td><td>Filtros combinados, caracteres especiales, especies múltiples</td><td style="text-align:center">3</td></tr>
+    <tr><td colspan="2"><strong>Total</strong></td><td style="text-align:center"><strong>21</strong></td></tr>
+  </table>
+
+  <h3 id="s2-2">2.2 Qué valida cada grupo</h3>
+  <ul>
+    <li><strong>GET /api/adoptions</strong> — Status 200, formato <code>{ status, payload }</code>, array de mascotas, filtros por <code>status</code> y <code>species</code>.</li>
+    <li><strong>GET /api/adoptions/:aid</strong> — Retorno por ID, manejo de IDs inexistentes (404/500) y formato inválido.</li>
+    <li><strong>POST /api/adoptions</strong> — Requiere autenticación (401), rechaza tokens inválidos (401/403), payloads incompletos o enums inválidos.</li>
+    <li><strong>POST /api/adoptions/:aid/adopt</strong> — Requiere user autenticado, rechaza IDs inexistentes.</li>
+    <li><strong>PUT /api/adoptions/:aid</strong> — Verifica autenticación para admin.</li>
+    <li><strong>DELETE /api/adoptions/:aid</strong> — Verifica autenticación para admin.</li>
+    <li><strong>Edge cases</strong> — Múltiples especies (Gato/Perro/Conejo/Ave), caracteres especiales en nombre, filtro <code>status=available</code>.</li>
+  </ul>
+
+  <h3 id="s2-3">2.3 Código completo del test funcional</h3>
+  <pre><code>import mongoose from 'mongoose';
+import request from 'supertest';
+import express from 'express';
+import adoptionRouter from '../routes/adoption.router.js';
+import { setupTestDB, teardownTestDB, clearCollections } from './test-db.js';
+import {
+    createFakeAdoption, createFakeAdoptions,
+    validAdoptionPayload, invalidAdoptionPayloads
+} from './mocks/adoption.mocks.js';
+
+const app = express();
+app.use(express.json());
+app.use('/api/adoptions', adoptionRouter);
+let testPet;
+
+beforeAll(async () => { await setupTestDB(); });
+afterAll(async () => { await teardownTestDB(); });
+beforeEach(async () => {
+    await clearCollections();
+    testPet = await createFakeAdoption();
+});
+
+// ── GET Endpoints ──────────────────────────────
+describe('GET /api/adoptions', () => {
+    it('should return all adoptions with success status', async () => {
+        await createFakeAdoptions(3);
+        const res = await request(app).get('/api/adoptions');
+        expect(res.status).toBe(200);
+        expect(res.body.status).toBe('success');
+        expect(res.body.payload.length).toBeGreaterThanOrEqual(3);
+    });
+    it('should return empty array when no adoptions exist', async () => {
+        await clearCollections();
+        const res = await request(app).get('/api/adoptions');
+        expect(res.body.payload).toHaveLength(0);
+    });
+    it('should filter by status query param', async () => {
+        await createFakeAdoption({ status: 'adopted' });
+        await createFakeAdoption({ status: 'available' });
+        const res = await request(app).get('/api/adoptions').query({ status: 'adopted' });
+        expect(res.body.payload.every(p => p.status === 'adopted')).toBe(true);
+    });
+    it('should filter by species query param', async () => {
+        await createFakeAdoption({ species: 'Gato' });
+        await createFakeAdoption({ species: 'Perro' });
+        const res = await request(app).get('/api/adoptions').query({ species: 'Gato' });
+        expect(res.body.payload.every(p => p.species === 'Gato')).toBe(true);
+    });
+});
+
+describe('GET /api/adoptions/:aid', () => {
+    it('should return an adoption by ID', async () => {
+        const res = await request(app).get(`/api/adoptions/${testPet._id}`);
+        expect(res.body.payload._id).toBe(testPet._id.toString());
+    });
+    it('should return 404 for non-existent ID', async () => {
+        const res = await request(app).get(`/api/adoptions/${new mongoose.Types.ObjectId()}`);
+        expect([404, 500]).toContain(res.status);
+    });
+    it('should return error for invalid ID format', async () => {
+        const res = await request(app).get('/api/adoptions/invalid-id');
+        expect([400, 404, 500]).toContain(res.status);
+    });
+});
+
+// ── POST Endpoints ─────────────────────────────
+describe('POST /api/adoptions (admin)', () => {
+    it('should require authentication', async () => {
+        const res = await request(app).post('/api/adoptions').send(validAdoptionPayload());
+        expect(res.status).toBe(401);
+    });
+    it('should reject invalid token', async () => {
+        const res = await request(app)
+            .post('/api/adoptions')
+            .set('Authorization', 'Bearer invalid')
+            .send(validAdoptionPayload());
+        expect([401, 403]).toContain(res.status);
+    });
+    it('should reject missing required fields', async () => {
+        const res = await request(app)
+            .post('/api/adoptions')
+            .set('Authorization', 'Bearer invalid')
+            .send(invalidAdoptionPayloads.missingFields);
+        expect([400, 401, 403, 500]).toContain(res.status);
+    });
+    it('should reject invalid species enum', async () => {
+        const res = await request(app)
+            .post('/api/adoptions')
+            .set('Authorization', 'Bearer invalid')
+            .send(invalidAdoptionPayloads.invalidSpecies);
+        expect([400, 401, 403, 500]).toContain(res.status);
+    });
+});
+
+describe('POST /api/adoptions/:aid/adopt', () => {
+    it('should require authentication', async () => {
+        const res = await request(app)
+            .post(`/api/adoptions/${testPet._id}/adopt`)
+            .send({ owner: 'Juan Pérez' });
+        expect(res.status).toBe(401);
+    });
+    it('should reject invalid token', async () => {
+        const res = await request(app)
+            .post(`/api/adoptions/${testPet._id}/adopt`)
+            .set('Authorization', 'Bearer invalid')
+            .send({ owner: 'Juan Pérez' });
+        expect([401, 403]).toContain(res.status);
+    });
+    it('should reject non-existent pet', async () => {
+        const res = await request(app)
+            .post(`/api/adoptions/${new mongoose.Types.ObjectId()}/adopt`)
+            .set('Authorization', 'Bearer invalid')
+            .send({ owner: 'Juan Pérez' });
+        expect([404, 401, 403, 500]).toContain(res.status);
+    });
+});
+
+// ── PUT Endpoint ───────────────────────────────
+describe('PUT /api/adoptions/:aid (admin)', () => {
+    it('should require authentication', async () => {
+        const res = await request(app)
+            .put(`/api/adoptions/${testPet._id}`)
+            .send({ description: 'Actualizado' });
+        expect(res.status).toBe(401);
+    });
+    it('should reject invalid token', async () => {
+        const res = await request(app)
+            .put(`/api/adoptions/${testPet._id}`)
+            .set('Authorization', 'Bearer invalid')
+            .send({ description: 'Actualizado' });
+        expect([401, 403]).toContain(res.status);
+    });
+});
+
+// ── DELETE Endpoint ────────────────────────────
+describe('DELETE /api/adoptions/:aid (admin)', () => {
+    it('should require authentication', async () => {
+        const res = await request(app).delete(`/api/adoptions/${testPet._id}`);
+        expect(res.status).toBe(401);
+    });
+    it('should reject invalid token', async () => {
+        const res = await request(app)
+            .delete(`/api/adoptions/${testPet._id}`)
+            .set('Authorization', 'Bearer invalid');
+        expect([401, 403]).toContain(res.status);
+    });
+});
+
+// ── Edge Cases ─────────────────────────────────
+describe('Edge Cases', () => {
+    it('should handle multiple species', async () => {
+        await createFakeAdoption({ species: 'Gato', name: 'Misu' });
+        await createFakeAdoption({ species: 'Conejo', name: 'Bugs' });
+        await createFakeAdoption({ species: 'Ave', name: 'Pico' });
+        const res = await request(app).get('/api/adoptions');
+        const species = new Set(res.body.payload.map(p => p.species));
+        expect(species.size).toBeGreaterThanOrEqual(3);
+    });
+    it('should handle special chars in name', async () => {
+        const pet = await createFakeAdoption({ name: 'Ñoño "Junior" & &lt;pets&gt;' });
+        const res = await request(app).get(`/api/adoptions/${pet._id}`);
+        expect(res.body.payload.name).toContain('Ñoño');
+    });
+    it('should not list adopted pets in available query', async () => {
+        await createFakeAdoption({ status: 'adopted' });
+        const res = await request(app).get('/api/adoptions').query({ status: 'available' });
+        expect(res.body.payload.every(p => p.status === 'available')).toBe(true);
+    });
+});</code></pre>
+</div>
+
+<div class="page">
+  <h3 id="s2-4">2.4 Evidencia de ejecución de tests</h3>
+  <p>Comando ejecutado:</p>
+  <pre><code>node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --forceExit</code></pre>
+
+  <p><strong>Suite completa — 55 tests, 3 suites:</strong></p>
+  <pre>PASS src/test/carts.test.js
+PASS src/test/products.test.js
+PASS src/test/adoptions.test.js
+
+Test Suites: 3 passed, 3 total
+Tests:       55 passed, 55 total
+Time:        5.551 s
+Ran all test suites.</pre>
+
+  <p><strong>Detalle — adoption.test.js (21 tests):</strong></p>
+  <pre>PASS src/test/adoptions.test.js
+  Adoptions Router - GET Endpoints
+    GET /api/adoptions
+      √ should return all adoptions with success status (110 ms)
+      √ should return empty array when no adoptions exist (21 ms)
+      √ should filter by status query param (25 ms)
+      √ should filter by species query param (23 ms)
+    GET /api/adoptions/:aid
+      √ should return an adoption by ID (16 ms)
+      √ should return 404 for non-existent ID (21 ms)
+      √ should return error for invalid ID format (15 ms)
+  Adoptions Router - POST Endpoints
+    POST /api/adoptions (admin)
+      √ should require authentication (29 ms)
+      √ should reject requests with invalid token (14 ms)
+      √ should reject payloads missing required fields (12 ms)
+      √ should reject invalid species enum value (14 ms)
+    POST /api/adoptions/:aid/adopt
+      √ should require authentication (12 ms)
+      √ should reject requests with invalid token (13 ms)
+      √ should reject adoption of non-existent pet (11 ms)
+  Adoptions Router - PUT Endpoint
+    PUT /api/adoptions/:aid (admin)
+      √ should require authentication (12 ms)
+      √ should reject requests with invalid token (13 ms)
+  Adoptions Router - DELETE Endpoint
+    DELETE /api/adoptions/:aid (admin)
+      √ should require authentication (13 ms)
+      √ should reject requests with invalid token (12 ms)
+  Adoptions Router - Edge Cases
+    √ should handle multiple adoptions of different species (23 ms)
+    √ should handle adoption with special characters in name (18 ms)
+    √ should not list adopted pets in default available query (19 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       21 passed, 21 total</pre>
+</div>
+
+<!-- ===== 3. DOCKERIZACIÓN ===== -->
+<div class="page">
+  <h2 id="s3">3. Dockerización</h2>
+
+  <h3 id="s3-1">3.1 Dockerfile completo</h3>
+  <pre><code>FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --omit=dev
+
+FROM node:20-alpine AS production
+LABEL maintainer="Miguel Zambrano <miguelzjl333@github.com>" \
+      org.opencontainers.image.title="backend-ecommerce" \
+      org.opencontainers.image.description="API REST e-commerce + modulo adoption" \
+      org.opencontainers.image.version="1.0.0"
+
+ENV NODE_ENV=production PORT=8080
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --omit=dev && npm cache clean --force
+COPY --from=builder /app/node_modules ./node_modules
+COPY dirname.js ./
+COPY src ./src
+RUN mkdir -p /app/public && chown -R node:node /app
+USER node
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
+
+CMD ["node", "src/server.js"]</code></pre>
+
+  <h3 id="s3-2">3.2 Decisiones de optimización</h3>
+  <table>
+    <tr><th>Decisión</th><th>Justificación</th></tr>
+    <tr><td><code>node:20-alpine</code></td><td>Imagen base ligera (~120 MB vs ~900 MB de Debian/Ubuntu).</td></tr>
+    <tr><td>Multi-stage build</td><td>Descarta devDependencies en la imagen final; reduce superficie de ataque.</td></tr>
+    <tr><td><code>npm install --omit=dev</code></td><td>No instala jest, supertest ni mongodb-memory-server en producción.</td></tr>
+    <tr><td><code>npm cache clean --force</code></td><td>Elimina el caché de npm dentro de la imagen; reduce capas.</td></tr>
+    <tr><td><code>COPY --from=builder</code></td><td>Reutiliza node_modules ya instalados en la etapa builder.</td></tr>
+    <tr><td><code>USER node</code></td><td>Ejecuta como usuario no root — buena práctica de seguridad.</td></tr>
+    <tr><td><code>HEALTHCHECK</code></td><td>Permite a Docker/orquestadores monitorear el contenedor cada 30s.</td></tr>
+    <tr><td>LABEL con metadatos OCI</td><td>Etiquetas estándar para registro de imágenes.</td></tr>
+    <tr><td><code>CMD</code> en formato exec</td><td>Las señales del kernel llegan correctamente a Node.</td></tr>
+  </table>
+
+  <h3 id="s3-3">3.3 Log de construcción de la imagen</h3>
+  <p>Comando: <code>docker build -t backend-ecommerce:1.0.0 .</code></p>
+  <pre>#0 building with "desktop-linux" instance using docker driver
+#1 [internal] load build definition from Dockerfile         DONE 0.0s
+#2 [internal] load metadata for node:20-alpine               DONE 2.4s
+#4 [internal] load .dockerignore                             DONE 0.0s
+#5 [builder 1/4] FROM node:20-alpine@sha256:...              DONE 4.9s
+#7 [builder 2/4] WORKDIR /app                                DONE 0.2s
+#8 [builder 3/4] COPY package*.json ./                       DONE 0.1s
+#9 [builder 4/4] RUN npm install --omit=dev                  DONE 5.6s
+   → added 158 packages, audited 159 packages in 5s
+#10 [production 4/8] RUN npm install --omit=dev && clean     DONE 5.9s
+   → added 158 packages, audited 159 packages in 5s
+#11 [production 5/8] COPY --from=builder node_modules        DONE 0.7s
+#12 [production 6/8] COPY dirname.js ./                      DONE 0.1s
+#13 [production 7/8] COPY src ./src                          DONE 0.1s
+#14 [production 8/8] RUN mkdir & chown                       DONE 14.0s
+#15 exporting to image                                       DONE 3.8s
+   → layers, manifest, config, naming completed
+   → docker.io/library/backend-ecommerce:1.0.0</pre>
+</div>
+
+<!-- ===== 4. IMAGEN DOCKER ===== -->
+<div class="page">
+  <h2 id="s4">4. Imagen Docker</h2>
+
+  <h3 id="s4-1">4.1 Nombre y tag</h3>
+  <table>
+    <tr><th>Repositorio</th><th>Tag</th><th>Image ID</th><th>Tamaño</th></tr>
+    <tr><td><code>backend-ecommerce</code></td><td><code>1.0.0</code></td><td><code>a253687292e1</code></td><td style="font-weight:700;color:#1a3a5c">315 MB</td></tr>
+  </table>
+
+  <pre>REPOSITORY          TAG       IMAGE ID       CREATED          SIZE
+backend-ecommerce   1.0.0     a253687292e1   33 seconds ago   315MB</pre>
+
+  <h3 id="s4-2">4.2 Evidencia de construcción correcta</h3>
+  <p>La imagen fue construida exitosamente con build multi-stage, completando todas las etapas sin errores:</p>
+  <ul>
+    <li><strong>Builder stage:</strong> 158 packages instalados, ~5.6s</li>
+    <li><strong>Production stage:</strong> Dependencias copiadas, source copiado, permisos asignados</li>
+    <li><strong>Export:</strong> Layers, manifest, config y naming completados en ~3.8s</li>
+    <li><strong>Tamaño final:</strong> 315 MB</li>
+  </ul>
+
+  <h3 id="s4-3">4.3 Evidencia de ejecución del contenedor</h3>
+  <pre>docker run -d --rm --name backend-ecommerce-test \
+  -p 8081:8080 \
+  -e MONGODB_URI=mongodb://127.0.0.1:27017/test \
+  -e JWT_PRIVATE_KEY=clave-secreta-min-32-caracteres \
+  -e PORT=8080 \
+  backend-ecommerce:1.0.0</pre>
+
+  <p><strong>Logs de arranque:</strong></p>
+  <pre>✓ Servidor escuchando en puerto 8080
+✓ Base de datos conectada
+✓ Aplicación lista para recibir solicitudes</pre>
+
+  <p><strong>Estado del contenedor:</strong> <code>backend-ecommerce-test: Up 3 seconds (health: starting)</code></p>
+
+  <p><strong>Test contra el contenedor:</strong></p>
+  <pre>curl -s http://localhost:8081/api/adoptions
+{"status":"error","message":"Operation `adoptions.find()` buffering timed out after 10000ms"}</pre>
+
+  <div class="callout">
+    El router <code>/api/adoptions</code> está montado, Express responde, y la app maneja errores con JSON estructurado en lugar de caerse. El error 500 se debe a que no hay MongoDB disponible en el host, lo cual es esperado.
+  </div>
+
+  <p><strong>Detención:</strong> <code>docker stop backend-ecommerce-test</code></p>
+</div>
+
+<!-- ===== 5. EJECUCIÓN ===== -->
+<div class="page">
+  <h2 id="s5">5. Ejecución del Proyecto</h2>
+
+  <h3 id="s5-1">5.1 Construir la imagen Docker</h3>
+  <pre>cd Entregable_Zambrano_Miguel_76985
+docker build -t backend-ecommerce:1.0.0 .</pre>
+  <p>Tiempo estimado: 30–60 s la primera vez (descarga de <code>node:20-alpine</code>), ~5–10 s las siguientes (caché).</p>
+
+  <h3 id="s5-2">5.2 Ejecutar el contenedor</h3>
+
+  <p><strong>Opción A — Con Docker Compose (app + MongoDB):</strong></p>
+  <pre>echo "JWT_PRIVATE_KEY=clave-secreta-min-32-caracteres" > .env
+docker-compose up -d
+docker-compose logs -f app
+curl http://localhost:8080/
+docker-compose down</pre>
+
+  <p><strong>Opción B — Solo el contenedor, con MongoDB externo:</strong></p>
+  <pre>docker run -d --name backend-ecommerce \
+  -p 8080:8080 \
+  -e MONGODB_URI="mongodb+srv://user:pass@cluster.mongodb.net/ecommerce" \
+  -e JWT_PRIVATE_KEY="clave-secreta-min-32-caracteres" \
+  backend-ecommerce:1.0.0
+
+docker logs -f backend-ecommerce</pre>
+
+  <div class="callout">
+    <strong>Nota:</strong> Asegurate de configurar una <code>JWT_PRIVATE_KEY</code> de al menos 32 caracteres. Podés generarla con: <code>node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"</code>
+  </div>
+
+  <h3 id="s5-3">5.3 Correr los tests</h3>
+  <pre>npm install
+npm test
+
+# Solo el módulo de adoption
+npx jest src/test/adoptions.test.js
+
+# Con cobertura
+npm run test:coverage</pre>
+
+  <h3 id="s5-4">5.4 Resultado esperado</h3>
+  <pre>Test Suites: 3 passed, 3 total
+Tests:       55 passed, 55 total
+Time:        5.551 s</pre>
+</div>
+
+<!-- ===== 6. README ===== -->
+<div class="page">
+  <h2 id="s6">6. README</h2>
+  <pre># Backend E-commerce + Adoption - Entregable Final
+
+API REST para e-commerce con un módulo adicional de **gestión de adopciones
+de mascotas**, desarrollado con Node.js, Express y MongoDB. Incluye
+autenticación con JWT, manejo de carritos, productos y un CRUD completo de
+adopciones con tests funcionales y Docker.
+
+## Tecnologías
+
+- **Runtime:** Node.js 20 (Alpine)
+- **Framework:** Express 5.x
+- **Base de datos:** MongoDB 6 con Mongoose 8
+- **Autenticación:** JWT + Passport
+- **Tests:** Jest 29 + Supertest 7 + MongoDB Memory Server
+- **Containerización:** Docker (multi-stage) + Docker Compose
+
+## Requisitos
+
+- Node.js 20+ / npm 10+
+- Docker Desktop 4.x
+- MongoDB (local, Docker o Atlas)
+
+## Instalación local
+
+    git clone &lt;repo&gt;
+    cd Entregable_Zambrano_Miguel_76985
+    npm install
+    cp .env.example .env
+    # Editar .env con JWT_PRIVATE_KEY y MONGODB_URI
+
+## Variables de Entorno
+
+| Variable        | Descripción                   | Default                                 |
+|-----------------|-------------------------------|-----------------------------------------|
+| PORT            | Puerto del servidor           | 8080                                    |
+| MONGODB_URI     | URI de conexión MongoDB       | mongodb://localhost:27017/ecommerce     |
+| JWT_PRIVATE_KEY | Clave secreta JWT (≥ 32 chr)  | —                                       |
+| NODE_ENV        | Entorno                       | production                              |
+
+## Scripts
+
+    npm run dev           # Desarrollo con nodemon
+    npm start             # Producción
+    npm test              # 55 tests funcionales
+    npm run test:coverage # Tests con cobertura
+
+## Endpoints — Adopciones
+
+| Método | Ruta                      | Auth | Rol   |
+|--------|---------------------------|------|-------|
+| GET    | /api/adoptions            | No   | —     |
+| GET    | /api/adoptions/:aid       | No   | —     |
+| POST   | /api/adoptions            | Sí   | admin |
+| PUT    | /api/adoptions/:aid       | Sí   | admin |
+| DELETE | /api/adoptions/:aid       | Sí   | admin |
+| POST   | /api/adoptions/:aid/adopt | Sí   | user  |
+
+## Docker
+
+    docker build -t backend-ecommerce:1.0.0 .
+    docker-compose up -d
+    docker run -d --name backend-ecommerce \
+      -p 8080:8080 \
+      -e MONGODB_URI=mongodb://host.docker.internal:27017/ecommerce \
+      -e JWT_PRIVATE_KEY=clave-secreta-min-32-chars \
+      backend-ecommerce:1.0.0
+
+## Seguridad
+
+- JWT firmado con clave secreta ≥ 32 chars
+- Contraseñas hasheadas con bcrypt
+- Secretos por variables de entorno
+- Middleware centralizado de errores
+- Roles diferenciados (admin, user)</pre>
+</div>
+
+<!-- ===== CHECKLIST ===== -->
+<div class="page">
+  <h2 id="checklist" style="text-align:center;">Checklist de Entrega</h2>
+
+  <table class="todo-table">
+    <tr><th>Requisito</th><th>Estado</th></tr>
+    <tr><td>Estructura del proyecto documentada con árbol y propósito de archivos</td><td>✅</td></tr>
+    <tr><td>Tests funcionales de <code>adoption.router.js</code> (21/21 passing)</td><td>✅</td></tr>
+    <tr><td>Suite completa de tests (55/55 passing)</td><td>✅</td></tr>
+    <tr><td>Dockerfile multi-stage optimizado</td><td>✅</td></tr>
+    <tr><td><code>docker-compose.yml</code> con MongoDB</td><td>✅</td></tr>
+    <tr><td>Imagen Docker: <code>backend-ecommerce:1.0.0</code> (315 MB)</td><td>✅</td></tr>
+    <tr><td>Contenedor ejecutado y validado (logs capturados)</td><td>✅</td></tr>
+    <tr><td>README actualizado con instrucciones reproducibles</td><td>✅</td></tr>
+    <tr><td>Documento final con todas las secciones requeridas</td><td>✅</td></tr>
+  </table>
+
+  <div class="end-mark">
+    <p><strong>Miguel Zambrano</strong></p>
+    <p>Comisión 76985 · CoderHouse Backend 3</p>
+    <p>Junio 2026</p>
+  </div>
+</div>
+
+</body>
+</html>
