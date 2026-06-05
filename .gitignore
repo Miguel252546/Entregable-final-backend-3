@@ -1,0 +1,42 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+
+# Documentation (internal)
+DOCUMENTO_ENTREGA.md
+DOCUMENTACION.md
+ENTREGABLE_FINAL.md
+RESUMEN_IMPLEMENTACION.md
+SEGURIDAD.md
+SUMARIO_EJECUTIVO.md
+QUICKSTART.md
+
+# Tests coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/

@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: backend-ecommerce:1.0.0
+    container_name: backend-ecommerce
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - URL_MONGODB=mongodb://mongo:27017/ecommerce
+      - MONGODB_URI=mongodb://mongo:27017/ecommerce
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY:-change-me-in-production-min-32-chars}
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production-min-32-chars}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - backend-net
+
+  mongo:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongod", "--version"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend-net
+
+volumes:
+  mongo_data:
+
+networks:
+  backend-net:
+    driver: bridge
