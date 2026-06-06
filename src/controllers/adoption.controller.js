@@ -1,4 +1,5 @@
 import adoptionService from '../services/adoption.service.js';
+import { AdoptionDTO } from '../dtos/adoption.dto.js';
 
 export const getAllAdoptions = async (req, res, next) => {
     try {
@@ -6,7 +7,7 @@ export const getAllAdoptions = async (req, res, next) => {
         if (req.query.status) filter.status = req.query.status;
         if (req.query.species) filter.species = req.query.species;
         const adoptions = await adoptionService.getAll(filter);
-        res.status(200).json({ status: 'success', payload: adoptions });
+        res.status(200).json({ status: 'success', payload: adoptions.map(a => new AdoptionDTO(a)) });
     } catch (error) {
         next(error);
     }
@@ -16,7 +17,7 @@ export const getAdoptionById = async (req, res, next) => {
     try {
         const { aid } = req.params;
         const adoption = await adoptionService.getById(aid);
-        res.status(200).json({ status: 'success', payload: adoption });
+        res.status(200).json({ status: 'success', payload: new AdoptionDTO(adoption) });
     } catch (error) {
         next(error);
     }
@@ -28,7 +29,7 @@ export const createAdoption = async (req, res, next) => {
         res.status(201).json({
             status: 'success',
             message: 'Animal registrado en adopción',
-            payload: newAdoption
+            payload: new AdoptionDTO(newAdoption)
         });
     } catch (error) {
         next(error);
@@ -42,7 +43,7 @@ export const updateAdoption = async (req, res, next) => {
         res.status(200).json({
             status: 'success',
             message: 'Animal actualizado',
-            payload: updated
+            payload: new AdoptionDTO(updated)
         });
     } catch (error) {
         next(error);
@@ -71,7 +72,7 @@ export const adoptAnimal = async (req, res, next) => {
         res.status(200).json({
             status: 'success',
             message: 'Adopción registrada',
-            payload: adopted
+            payload: new AdoptionDTO(adopted)
         });
     } catch (error) {
         next(error);

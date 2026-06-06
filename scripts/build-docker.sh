@@ -4,7 +4,7 @@
 
 set -e
 
-DOCKER_USERNAME=${1:-"miguelzambrano"}
+DOCKER_USERNAME=${1:-"miguelz333"}
 IMAGE_NAME="backend-ecommerce"
 VERSION="1.0.0"
 FULL_IMAGE_NAME="${DOCKER_USERNAME}/${IMAGE_NAME}:${VERSION}"

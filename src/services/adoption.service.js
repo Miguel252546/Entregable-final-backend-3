@@ -1,4 +1,5 @@
 import adoptionRepository from '../repositories/adoption.repository.js';
+import { AppError } from '../utils/AppError.js';
 
 export class AdoptionService {
     async getAll(filter = {}) {
@@ -8,23 +9,17 @@ export class AdoptionService {
     async getById(id) {
         const adoption = await adoptionRepository.findById(id);
         if (!adoption) {
-            const error = new Error('Animal no encontrado en adopción');
-            error.statusCode = 404;
-            throw error;
+            throw new AppError('Animal no encontrado en adopción', 404);
         }
         return adoption;
     }
 
     async create(data) {
         if (!data.name || !data.species || data.age === undefined || !data.description) {
-            const error = new Error('Faltan datos requeridos del animal');
-            error.statusCode = 400;
-            throw error;
+            throw new AppError('Faltan datos requeridos del animal', 400);
         }
         if (data.age < 0) {
-            const error = new Error('La edad no puede ser negativa');
-            error.statusCode = 400;
-            throw error;
+            throw new AppError('La edad no puede ser negativa', 400);
         }
         return await adoptionRepository.create(data);
     }
@@ -41,15 +36,11 @@ export class AdoptionService {
 
     async adopt(id, owner) {
         if (!owner) {
-            const error = new Error('Se requiere el nombre del adoptante');
-            error.statusCode = 400;
-            throw error;
+            throw new AppError('Se requiere el nombre del adoptante', 400);
         }
         const adoption = await this.getById(id);
         if (adoption.status === 'adopted') {
-            const error = new Error('El animal ya fue adoptado');
-            error.statusCode = 409;
-            throw error;
+            throw new AppError('El animal ya fue adoptado', 409);
         }
         return await adoptionRepository.update(id, {
             status: 'adopted',

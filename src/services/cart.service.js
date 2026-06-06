@@ -1,25 +1,21 @@
 import cartRepository from '../repositories/cart.repository.js';
 import productRepository from '../repositories/product.repository.js';
+import { AppError } from '../utils/AppError.js';
 
-/**
- * Service para lógica de negocio de Carrito
- */
 export class CartService {
 
     async getCart(cartId) {
         const cart = await cartRepository.findById(cartId);
-        if (!cart) throw new Error('Carrito no encontrado');
+        if (!cart) throw new AppError('Carrito no encontrado', 404);
         return cart;
     }
 
     async addProductToCart(cartId, productId, quantity = 1) {
-        // Validar que el producto exista
         const product = await productRepository.findById(productId);
-        if (!product) throw new Error('Producto no encontrado');
+        if (!product) throw new AppError('Producto no encontrado', 404);
 
-        // Validar stock disponible
         if (product.stock < quantity) {
-            throw new Error(`Stock insuficiente. Disponible: ${product.stock}`);
+            throw new AppError(`Stock insuficiente. Disponible: ${product.stock}`, 400);
         }
 
         return await cartRepository.addProduct(cartId, productId, quantity);
@@ -34,12 +30,11 @@ export class CartService {
             return await this.removeProductFromCart(cartId, productId);
         }
 
-        // Validar stock
         const product = await productRepository.findById(productId);
-        if (!product) throw new Error('Producto no encontrado');
+        if (!product) throw new AppError('Producto no encontrado', 404);
 
         if (product.stock < quantity) {
-            throw new Error(`Stock insuficiente. Disponible: ${product.stock}`);
+            throw new AppError(`Stock insuficiente. Disponible: ${product.stock}`, 400);
         }
 
         return await cartRepository.updateProductQuantity(cartId, productId, quantity);
@@ -51,7 +46,7 @@ export class CartService {
 
     async getCartTotal(cart) {
         let total = 0;
-        
+
         if (!cart.products || cart.products.length === 0) {
             return total;
         }
@@ -76,12 +71,17 @@ export class CartService {
             return result;
         }
 
+        const productIds = cart.products.map(item => item.product._id || item.product);
+        const products = await productRepository.findByIdMultiple(productIds);
+        const productMap = new Map(products.map(p => [p._id.toString(), p]));
+
         for (const item of cart.products) {
-            const product = await productRepository.findById(item.product._id || item.product);
-            
+            const productId = item.product._id || item.product;
+            const product = productMap.get(productId.toString());
+
             if (!product) {
                 result.invalidProducts.push({
-                    productId: item.product._id || item.product,
+                    productId,
                     reason: 'Producto no encontrado'
                 });
             } else if (product.stock < item.quantity) {

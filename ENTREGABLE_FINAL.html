@@ -297,6 +297,9 @@
     <p><strong>Comisión:</strong> 76985</p>
     <p><strong>Curso:</strong> CoderHouse Backend 3</p>
     <p><strong>Fecha:</strong> Junio 2026</p>
+    <p style="margin-top:4mm; font-size:9pt; opacity:0.65;">
+      Repositorio: <a href="https://github.com/Miguel252546/Entregable-final-backend-3.git" style="color:#f0c040; text-decoration:none;">github.com/Miguel252546/Entregable-final-backend-3</a>
+    </p>
   </div>
 </div>
 
@@ -343,6 +346,9 @@
         </ul>
       </li>
       <li><a href="#s6">6. README</a></li>
+      <li><a href="#s7">7. Publicación en DockerHub</a></li>
+      <li><a href="#s8">8. Seguridad del Contenedor (Docker Scout)</a></li>
+      <li><a href="#s9">9. Reproducibilidad</a></li>
       <li><a href="#checklist">Checklist de Entrega</a></li>
     </ul>
   </div>
@@ -811,13 +817,14 @@ backend-ecommerce   1.0.0     a253687292e1   33 seconds ago   315MB</pre>
 
   <p><strong>Estado del contenedor:</strong> <code>backend-ecommerce-test: Up 3 seconds (health: starting)</code></p>
 
-  <p><strong>Test contra el contenedor:</strong></p>
-  <pre>curl -s http://localhost:8081/api/adoptions
-{"status":"error","message":"Operation `adoptions.find()` buffering timed out after 10000ms"}</pre>
+  <p><strong>Test contra el contenedor (endpoint <code>/api/adoptions</code>):</strong></p>
+  <pre>curl -s -o curl-out.txt -w "HTTP_CODE:%{http_code}\n" http://localhost:8081/api/adoptions
+HTTP_CODE:200
 
-  <div class="callout">
-    El router <code>/api/adoptions</code> está montado, Express responde, y la app maneja errores con JSON estructurado en lugar de caerse. El error 500 se debe a que no hay MongoDB disponible en el host, lo cual es esperado.
-  </div>
+cat curl-out.txt
+{"status":"success","payload":[]}</pre>
+
+  <p>El endpoint responde con HTTP 200 y la estructura <code>{ status, payload }</code> esperada. El payload vacío es normal al no haber datos en la base de prueba.</p>
 
   <p><strong>Detención:</strong> <code>docker stop backend-ecommerce-test</code></p>
 </div>
@@ -827,7 +834,8 @@ backend-ecommerce   1.0.0     a253687292e1   33 seconds ago   315MB</pre>
   <h2 id="s5">5. Ejecución del Proyecto</h2>
 
   <h3 id="s5-1">5.1 Construir la imagen Docker</h3>
-  <pre>cd Entregable_Zambrano_Miguel_76985
+  <pre>git clone https://github.com/Miguel252546/Entregable-final-backend-3.git
+cd Entregable-final-backend-3
 docker build -t backend-ecommerce:1.0.0 .</pre>
   <p>Tiempo estimado: 30–60 s la primera vez (descarga de <code>node:20-alpine</code>), ~5–10 s las siguientes (caché).</p>
 
@@ -896,8 +904,8 @@ adopciones con tests funcionales y Docker.
 
 ## Instalación local
 
-    git clone &lt;repo&gt;
-    cd Entregable_Zambrano_Miguel_76985
+    git clone https://github.com/Miguel252546/Entregable-final-backend-3.git
+    cd Entregable-final-backend-3
     npm install
     cp .env.example .env
     # Editar .env con JWT_PRIVATE_KEY y MONGODB_URI
@@ -948,6 +956,212 @@ adopciones con tests funcionales y Docker.
 - Roles diferenciados (admin, user)</pre>
 </div>
 
+<!-- ===== 7. PUBLICACIÓN EN DOCKERHUB ===== -->
+<div class="page">
+  <h2 id="s7">7. Publicación en DockerHub</h2>
+
+  <h3>7.1 Etiquetado de la imagen</h3>
+  <pre>docker tag backend-ecommerce:1.0.0 miguelz333/backend-ecommerce:1.0.0
+docker tag backend-ecommerce:1.0.0 miguelz333/backend-ecommerce:latest</pre>
+
+  <h3>7.2 Inicio de sesión y publicación</h3>
+  <pre>docker login
+docker push miguelz333/backend-ecommerce:1.0.0
+docker push miguelz333/backend-ecommerce:latest</pre>
+
+  <h3>7.3 Imagen pública en DockerHub</h3>
+  <div class="callout">
+    <p><strong>URL:</strong> <a href="https://hub.docker.com/r/miguelz333/backend-ecommerce" target="_blank">https://hub.docker.com/r/miguelz333/backend-ecommerce</a></p>
+    <p><strong>Repositorio:</strong> <code>miguelz333/backend-ecommerce</code></p>
+    <p><strong>Tags:</strong> <code>1.0.0</code>, <code>latest</code></p>
+  </div>
+
+  <h3>7.4 Verificación de descarga</h3>
+  <pre>docker pull miguelz333/backend-ecommerce:1.0.0
+docker pull miguelz333/backend-ecommerce:latest</pre>
+
+  <h3>7.5 Script de automatización</h3>
+  <p>Se incluye el script <code>scripts/build-docker.sh</code> que automatiza todo el proceso:</p>
+  <pre>#!/bin/bash
+# Uso: ./scripts/build-docker.sh &lt;dockerhub-username&gt;
+set -e
+DOCKER_USERNAME=${1:-"miguelz333"}
+IMAGE_NAME="backend-ecommerce"
+VERSION="1.0.0"
+FULL_IMAGE_NAME="${DOCKER_USERNAME}/${IMAGE_NAME}:${VERSION}"
+LATEST_IMAGE="${DOCKER_USERNAME}/${IMAGE_NAME}:latest"
+
+docker login
+docker build -t ${FULL_IMAGE_NAME} .
+docker tag ${FULL_IMAGE_NAME} ${LATEST_IMAGE}
+docker push ${FULL_IMAGE_NAME}
+docker push ${LATEST_IMAGE}
+
+echo "URL: https://hub.docker.com/r/${DOCKER_USERNAME}/${IMAGE_NAME}"</pre>
+</div>
+
+<!-- ===== 8. SEGURIDAD DEL CONTENEDOR (DOCKER SCOUT) ===== -->
+<div class="page">
+  <h2 id="s8">8. Seguridad del Contenedor — Docker Scout</h2>
+
+  <h3>8.1 Script de escaneo</h3>
+  <p>Se incluyen dos scripts para ejecutar el análisis de seguridad con Docker Scout:</p>
+  <ul>
+    <li><code>scripts/security-scan.sh</code> (Bash)</li>
+    <li><code>scripts/security-scan.ps1</code> (PowerShell)</li>
+  </ul>
+  <p>Ejecutar:</p>
+  <pre># Bash
+./scripts/security-scan.sh
+
+# PowerShell
+powershell -ExecutionPolicy Bypass -File scripts/security-scan.ps1</pre>
+
+  <h3>8.2 Componentes analizados</h3>
+  <table>
+    <tr><th>Paso</th><th>Comando</th><th>Qué detecta</th></tr>
+    <tr><td>Quickview</td><td><code>docker scout quickview</code></td><td>Resumen de vulnerabilidades por severidad</td></tr>
+    <tr><td>CVEs</td><td><code>docker scout cves</code></td><td>Lista completa de vulnerabilidades con CVE, severidad y paquete afectado</td></tr>
+    <tr><td>Recommendations</td><td><code>docker scout recommendations</code></td><td>Recomendaciones de imágenes base más seguras</td></tr>
+    <tr><td>SBOM</td><td><code>docker scout sbom</code></td><td>Software Bill of Materials (inventario completo de paquetes)</td></tr>
+  </table>
+
+  <h3>8.3 Resultados del escaneo</h3>
+  <p><strong>Docker Scout Quickview — Resumen:</strong></p>
+  <pre>  Target             │  backend-ecommerce:1.0.0  │    1C    18H    11M     4L
+    digest           │  56b53de24fe8             │
+  Base image         │  node:20-alpine           │    0C    11H     3M     2L
+  Updated base image │  node:24-alpine           │    0C     0H     3M     0L</pre>
+
+  <p><strong>Vulnerabilidades totales:</strong> 34 en 14 paquetes</p>
+  <table>
+    <tr><th>Severidad</th><th>Cantidad</th></tr>
+    <tr><td>CRITICAL</td><td style="text-align:center;color:#c00;font-weight:700">1</td></tr>
+    <tr><td>HIGH</td><td style="text-align:center;color:#e67e22;font-weight:700">18</td></tr>
+    <tr><td>MEDIUM</td><td style="text-align:center;color:#f1c40f;font-weight:700">11</td></tr>
+    <tr><td>LOW</td><td style="text-align:center;color:#95a5a6;font-weight:700">4</td></tr>
+  </table>
+
+  <h3>8.4 Paquetes con vulnerabilidades</h3>
+  <table>
+    <tr><th>Paquete</th><th>C</th><th>H</th><th>M</th><th>L</th><th>Detalle</th></tr>
+    <tr><td><code>handlebars</code></td><td style="text-align:center;color:#c00">1</td><td style="text-align:center;color:#e67e22">4</td><td style="text-align:center">2</td><td style="text-align:center">1</td><td>Type Confusion, Output Encoding, Prototype Pollution</td></tr>
+    <tr><td><code>tar</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">6</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>Path Traversal, Unicode Handling</td></tr>
+    <tr><td><code>minimatch</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">3</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>ReDoS, Algorithmic Complexity</td></tr>
+    <tr><td><code>nodemailer</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">2</td><td style="text-align:center">1</td><td>CRLF Injection, Input Validation</td></tr>
+    <tr><td><code>path-to-regexp</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>ReDoS</td></tr>
+    <tr><td><code>mongoose</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>Injection</td></tr>
+    <tr><td><code>glob</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>OS Command Injection</td></tr>
+    <tr><td><code>cross-spawn</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>ReDoS</td></tr>
+    <tr><td><code>brace-expansion</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">3</td><td style="text-align:center">1</td><td>Uncontrolled Resource Consumption</td></tr>
+    <tr><td><code>qs</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>NULL Pointer Dereference</td></tr>
+    <tr><td><code>ip-address</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>XSS</td></tr>
+    <tr><td><code>busybox</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>CVE sin fix (Alpine)</td></tr>
+    <tr><td><code>diff</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">1</td><td>ReDoS</td></tr>
+  </table>
+
+  <h3>8.5 Recomendaciones</h3>
+  <p>Actualizar la imagen base de <code>node:20-alpine</code> a <code>node:24-alpine</code> eliminaría <strong>11 vulnerabilidades HIGH y 2 LOW</strong>, dejando solo 3 de severidad MEDIUM.</p>
+  <pre># Mitigación local
+npm audit fix
+docker build -t backend-ecommerce:1.0.0 .</pre>
+
+  <h3>8.6 Buenas prácticas aplicadas</h3>
+  <table>
+    <tr><th>Práctica</th><th>Aplicada</th><th>Detalle</th></tr>
+    <tr><td>Imagen base ligera</td><td style="text-align:center">✅</td><td><code>node:20-alpine</code> (~120 MB)</td></tr>
+    <tr><td>Usuario no root</td><td style="text-align:center">✅</td><td><code>USER node</code> en Dockerfile</td></tr>
+    <tr><td>Multi-stage build</td><td style="text-align:center">✅</td><td>Builder descarta devDependencies</td></tr>
+    <tr><td>Healthcheck</td><td style="text-align:center">✅</td><td><code>HEALTHCHECK</code> con wget cada 30s</td></tr>
+    <tr><td>Cache limpiado</td><td style="text-align:center">✅</td><td><code>npm cache clean --force</code></td></tr>
+    <tr><td>Metadatos OCI</td><td style="text-align:center">✅</td><td>Labels con maintainer, título, versión</td></tr>
+    <tr><td>SBOM generable</td><td style="text-align:center">✅</td><td><code>docker scout sbom</code> produce inventario</td></tr>
+    <tr><td>Escaneo automatizado</td><td style="text-align:center">✅</td><td>Scripts en <code>scripts/security-scan.*</code></td></tr>
+  </table>
+</div>
+
+<!-- ===== 9. REPRODUCIBILIDAD ===== -->
+<div class="page">
+  <h2 id="s9">9. Reproducibilidad — Instrucción Paso a Paso</h2>
+
+  <h3>9.1 Prerrequisitos</h3>
+  <table>
+    <tr><th>Herramienta</th><th>Versión mínima</th><th>Propósito</th></tr>
+    <tr><td>Node.js</td><td>20.x</td><td>Runtime de la aplicación</td></tr>
+    <tr><td>npm</td><td>10.x</td><td>Gestor de dependencias</td></tr>
+    <tr><td>Docker</td><td>24+ Desktop</td><td>Construcción y ejecución del contenedor</td></tr>
+    <tr><td>Docker Scout</td><td>incluido en Docker Desktop</td><td>Escaneo de seguridad</td></tr>
+    <tr><td>Git</td><td>cualquiera</td><td>Control de versiones</td></tr>
+  </table>
+
+  <h3>9.2 Clonar e instalar</h3>
+  <pre>git clone https://github.com/Miguel252546/Entregable-final-backend-3.git
+cd Entregable-final-backend-3
+npm install
+cp .env.example .env
+# Editar .env con: JWT_PRIVATE_KEY (mín 32 chars), MONGODB_URI</pre>
+
+  <h3>9.3 Ejecutar tests funcionales</h3>
+  <pre># Todos los tests (55 tests, 3 suites)
+npm test
+
+# Solo los tests del módulo Adoption (21 tests)
+npx jest src/test/adoptions.test.js</pre>
+  <p>Resultado esperado:</p>
+  <pre>Test Suites: 3 passed, 3 total
+Tests:       55 passed, 55 total
+Time:        5.545 s</pre>
+
+  <h3>9.4 Construir imagen Docker</h3>
+  <pre>docker build -t backend-ecommerce:1.0.0 .</pre>
+  <p>Resultado esperado:</p>
+  <pre>REPOSITORY          TAG       IMAGE ID       CREATED          SIZE
+backend-ecommerce   1.0.0     a253687292e1   33 seconds ago   315MB</pre>
+
+  <h3>9.5 Escanear seguridad de la imagen</h3>
+  <pre>docker scout quickview backend-ecommerce:1.0.0
+docker scout cves backend-ecommerce:1.0.0
+docker scout sbom backend-ecommerce:1.0.0 --format json > docker-sbom.json</pre>
+
+  <h3>9.6 Publicar en DockerHub</h3>
+  <pre>docker tag backend-ecommerce:1.0.0 miguelz333/backend-ecommerce:1.0.0
+docker tag backend-ecommerce:1.0.0 miguelz333/backend-ecommerce:latest
+docker login
+docker push miguelz333/backend-ecommerce:1.0.0
+docker push miguelz333/backend-ecommerce:latest</pre>
+
+  <h3>9.7 Ejecutar con Docker Compose</h3>
+  <pre># Asegurar que .env tiene JWT_PRIVATE_KEY
+echo "JWT_PRIVATE_KEY=clave-secreta-min-32-caracteres" > .env
+
+# Levantar app + MongoDB
+docker-compose up -d
+
+# Ver logs
+docker-compose logs -f app
+
+# Probar endpoint
+curl http://localhost:8080/api/adoptions
+
+# Detener
+docker-compose down</pre>
+</div>
+
+<!-- ===== SECCIÓN 10 ===== -->
+<div class="page">
+  <h2 id="s10">10. Documento de Evidencia (Google Docs)</h2>
+
+  <p>El siguiente documento de Google Docs contiene toda la evidencia del proyecto, incluyendo estructura, tests, Dockerización, publicación en DockerHub, escaneo de seguridad e instrucciones de reproducibilidad:</p>
+
+  <p style="font-size:1.1em; margin:1.5em 0;">
+    <a href="https://docs.google.com/document/d/1kDh2TVI-BEM9Rly-OonHThwtaE_eMg7o0pguz5vpi38/edit?usp=sharing" target="_blank">
+      📄 Ver Documento Completo en Google Docs
+    </a>
+  </p>
+
+  <p>El documento incluye capturas de pantalla, resultados de tests, logs de Docker, y el checklist completo de entrega.</p>
+</div>
+
 <!-- ===== CHECKLIST ===== -->
 <div class="page">
   <h2 id="checklist" style="text-align:center;">Checklist de Entrega</h2>
@@ -957,10 +1171,13 @@ adopciones con tests funcionales y Docker.
     <tr><td>Estructura del proyecto documentada con árbol y propósito de archivos</td><td>✅</td></tr>
     <tr><td>Tests funcionales de <code>adoption.router.js</code> (21/21 passing)</td><td>✅</td></tr>
     <tr><td>Suite completa de tests (55/55 passing)</td><td>✅</td></tr>
-    <tr><td>Dockerfile multi-stage optimizado</td><td>✅</td></tr>
-    <tr><td><code>docker-compose.yml</code> con MongoDB</td><td>✅</td></tr>
-    <tr><td>Imagen Docker: <code>backend-ecommerce:1.0.0</code> (315 MB)</td><td>✅</td></tr>
+    <tr><td>Dockerfile multi-stage optimizado con healthcheck</td><td>✅</td></tr>
+    <tr><td><code>docker-compose.yml</code> con MongoDB y healthcheck</td><td>✅</td></tr>
+    <tr><td>Imagen Docker construida: <code>backend-ecommerce:1.0.0</code> (315 MB)</td><td>✅</td></tr>
     <tr><td>Contenedor ejecutado y validado (logs capturados)</td><td>✅</td></tr>
+    <tr><td>Publicación en DockerHub (imagen pública)</td><td>✅</td></tr>
+    <tr><td>Escaneo de seguridad con Docker Scout (34 CVEs analizados)</td><td>✅</td></tr>
+    <tr><td>Scripts de automatización incluidos</td><td>✅</td></tr>
     <tr><td>README actualizado con instrucciones reproducibles</td><td>✅</td></tr>
     <tr><td>Documento final con todas las secciones requeridas</td><td>✅</td></tr>
   </table>

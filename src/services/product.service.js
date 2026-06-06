@@ -1,8 +1,6 @@
 import productRepository from '../repositories/product.repository.js';
+import { AppError } from '../utils/AppError.js';
 
-/**
- * Service para lógica de negocio de Productos
- */
 export class ProductService {
 
     async getProducts(query = {}, options = { limit: 10, page: 1 }) {
@@ -11,19 +9,17 @@ export class ProductService {
 
     async getProductById(id) {
         const product = await productRepository.findById(id);
-        if (!product) throw new Error('Producto no encontrado');
+        if (!product) throw new AppError('Producto no encontrado', 404);
         return product;
     }
 
     async createProduct(productData) {
-        // Validación básica
         if (!productData.title || !productData.description || !productData.code || !productData.price || !productData.stock) {
-            throw new Error('Faltan datos requeridos del producto');
+            throw new AppError('Faltan datos requeridos del producto', 400);
         }
 
-        // Verificar que el código sea único
         const existingProduct = await productRepository.findByCode(productData.code);
-        if (existingProduct) throw new Error('El código del producto ya existe');
+        if (existingProduct) throw new AppError('El código del producto ya existe', 409);
 
         return await productRepository.create(productData);
     }
@@ -31,10 +27,9 @@ export class ProductService {
     async updateProduct(id, updateData) {
         const product = await this.getProductById(id);
 
-        // No permitir cambio de código si ya existe otro producto con ese código
         if (updateData.code && updateData.code !== product.code) {
             const existingProduct = await productRepository.findByCode(updateData.code);
-            if (existingProduct) throw new Error('El código del producto ya existe');
+            if (existingProduct) throw new AppError('El código del producto ya existe', 409);
         }
 
         return await productRepository.update(id, updateData);
@@ -47,7 +42,7 @@ export class ProductService {
 
     async checkStock(productId, quantity) {
         const product = await this.getProductById(productId);
-        
+
         return {
             available: product.stock >= quantity,
             requested: quantity,
@@ -58,9 +53,9 @@ export class ProductService {
 
     async decreaseStock(productId, quantity) {
         const product = await this.getProductById(productId);
-        
+
         if (product.stock < quantity) {
-            throw new Error(`Stock insuficiente. Disponible: ${product.stock}, solicitado: ${quantity}`);
+            throw new AppError(`Stock insuficiente. Disponible: ${product.stock}, solicitado: ${quantity}`, 400);
         }
 
         return await productRepository.decreaseStock(productId, quantity);

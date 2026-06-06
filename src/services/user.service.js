@@ -2,18 +2,15 @@ import userRepository from '../repositories/user.repository.js';
 import cartRepository from '../repositories/cart.repository.js';
 import { generateTokenEmail, verifyTokenEmail } from '../utils/jwt.js';
 import { sendPasswordResetEmail } from '../utils/mailer.js';
+import { AppError } from '../utils/AppError.js';
 import bcrypt from 'bcrypt';
 
-/**
- * Service para lógica de negocio de Usuarios
- */
 export class UserService {
 
     async registerUser(userData) {
         const existingUser = await userRepository.findByEmail(userData.email);
-        if (existingUser) throw new Error('El email ya está registrado');
+        if (existingUser) throw new AppError('El email ya está registrado', 409);
 
-        // Crear carrito para el nuevo usuario
         const newCart = await cartRepository.create();
 
         const userToCreate = {
@@ -26,7 +23,7 @@ export class UserService {
 
     async findUserById(id) {
         const user = await userRepository.findById(id);
-        if (!user) throw new Error('Usuario no encontrado');
+        if (!user) throw new AppError('Usuario no encontrado', 404);
         return user;
     }
 
@@ -36,10 +33,10 @@ export class UserService {
 
     async validatePassword(email, password) {
         const user = await this.findUserByEmail(email);
-        if (!user) throw new Error('Usuario no encontrado');
+        if (!user) throw new AppError('Usuario no encontrado', 404);
 
         if (!user.isValidPassword(password)) {
-            throw new Error('Contraseña incorrecta');
+            throw new AppError('Contraseña incorrecta', 401);
         }
 
         return user;
@@ -47,40 +44,34 @@ export class UserService {
 
     async requestPasswordReset(email) {
         const user = await this.findUserByEmail(email);
-        if (!user) throw new Error('Usuario no encontrado');
+        if (!user) throw new AppError('Usuario no encontrado', 404);
 
-        // Generar token que expira en 1 hora
         const resetToken = generateTokenEmail(user._id.toString());
-        const expiryDate = new Date(Date.now() + 3600000); // 1 hora
+        const expiryDate = new Date(Date.now() + 3600000);
 
         await userRepository.updateResetToken(user._id, resetToken, expiryDate);
 
-        // Enviar email
-        const resetLink = `http://localhost:8080/reset-password/${resetToken}`;
+        const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
+        const resetLink = `${baseUrl}/reset-password/${resetToken}`;
         await sendPasswordResetEmail(email, resetLink, user.first_name);
 
         return { message: 'Email de recuperación enviado' };
     }
 
     async resetPassword(token, newPassword) {
-        // Verificar token
         const decoded = verifyTokenEmail(token);
-        if (!decoded) throw new Error('Token inválido o expirado');
+        if (!decoded) throw new AppError('Token inválido o expirado', 400);
 
-        // Encontrar usuario por token
         const user = await userRepository.findByResetToken(token);
-        if (!user) throw new Error('Token inválido o expirado');
+        if (!user) throw new AppError('Token inválido o expirado', 400);
 
-        // Verificar que la nueva contraseña no sea igual a la anterior
         if (user.isValidPassword(newPassword)) {
-            throw new Error('La nueva contraseña no puede ser igual a la anterior');
+            throw new AppError('La nueva contraseña no puede ser igual a la anterior', 400);
         }
 
-        // Hash de la nueva contraseña
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(newPassword, salt);
 
-        // Actualizar contraseña
         return await userRepository.updatePassword(user._id, hashedPassword);
     }
 
@@ -89,16 +80,14 @@ export class UserService {
     }
 
     async updateUser(id, updateData) {
-        // No permitir actualización de email o rol a través de este método
         const { email, role, password, ...safeData } = updateData;
-        
+
         return await userRepository.update(id, safeData);
     }
 
     async deleteUser(id) {
         const user = await this.findUserById(id);
-        
-        // Eliminar carrito asociado
+
         if (user.cart) {
             await cartRepository.delete(user.cart);
         }

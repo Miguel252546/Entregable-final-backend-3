@@ -2,30 +2,24 @@ import ticketRepository from '../repositories/ticket.repository.js';
 import cartRepository from '../repositories/cart.repository.js';
 import productRepository from '../repositories/product.repository.js';
 import cartService from './cart.service.js';
+import { AppError } from '../utils/AppError.js';
 
-/**
- * Service para lógica de Checkout y Órdenes de Compra
- */
 export class CheckoutService {
 
     async purchaseCart(cartId, userEmail) {
-        // Obtener carrito
         const cart = await cartRepository.findById(cartId);
         if (!cart || !cart.products || cart.products.length === 0) {
-            throw new Error('Carrito vacío o no encontrado');
+            throw new AppError('Carrito vacío o no encontrado', 400);
         }
 
-        // Validar y procesar productos
         const validatedProducts = await cartService.validateCartProducts(cart);
 
         if (validatedProducts.validProducts.length === 0) {
-            throw new Error('No hay productos válidos para comprar');
+            throw new AppError('No hay productos válidos para comprar', 400);
         }
 
-        // Generar código de ticket
         const ticketCode = await ticketRepository.generateUniqueCode();
 
-        // Crear ticket
         const ticketData = {
             code: ticketCode,
             purchase_datetime: new Date(),
@@ -38,12 +32,10 @@ export class CheckoutService {
 
         const ticket = await ticketRepository.create(ticketData);
 
-        // Actualizar stock solo de productos válidos
         for (const product of validatedProducts.validProducts) {
             await productRepository.decreaseStock(product.productId, product.quantity);
         }
 
-        // Limpiar carrito
         await cartRepository.clear(cartId);
 
         return ticket;
@@ -51,13 +43,13 @@ export class CheckoutService {
 
     async getTicket(ticketId) {
         const ticket = await ticketRepository.findById(ticketId);
-        if (!ticket) throw new Error('Ticket no encontrado');
+        if (!ticket) throw new AppError('Ticket no encontrado', 404);
         return ticket;
     }
 
     async getTicketByCode(code) {
         const ticket = await ticketRepository.findByCode(code);
-        if (!ticket) throw new Error('Ticket no encontrado');
+        if (!ticket) throw new AppError('Ticket no encontrado', 404);
         return ticket;
     }
 

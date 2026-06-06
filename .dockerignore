@@ -18,4 +18,4 @@ tests-results
 Thumbs.db
 scripts
 src/test
-src/views
+# src/views  # needed at runtime for handlebars templates

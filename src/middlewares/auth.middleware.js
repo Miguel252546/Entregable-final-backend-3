@@ -62,7 +62,7 @@ export const ownerOrAdmin = (req, res, next) => {
         return res.status(401).json({ error: 'Usuario no autenticado' });
     }
 
-    const resourceOwnerId = req.params.id;
+    const resourceOwnerId = req.params.uid || req.params.id;
     const isOwner = req.user.userId === resourceOwnerId;
     const isAdmin = req.user.role === 'admin';
 

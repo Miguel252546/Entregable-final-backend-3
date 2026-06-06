@@ -8,10 +8,7 @@ const connectMongoDB = async () => {
             throw new Error('La variable de entorno MONGODB_URI o URL_MONGODB no está configurada');
         }
 
-        await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
+        await mongoose.connect(uri);
 
         console.log("Base de datos conectada");
     } catch (error) {

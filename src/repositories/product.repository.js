@@ -30,14 +30,6 @@ export class ProductRepository {
         return await ProductModel.findByIdAndDelete(id);
     }
 
-    async updateStock(id, quantity) {
-        return await ProductModel.findByIdAndUpdate(
-            id,
-            { $inc: { stock: -quantity } },
-            { new: true }
-        );
-    }
-
     async decreaseStock(id, quantity) {
         return await ProductModel.findByIdAndUpdate(
             id,

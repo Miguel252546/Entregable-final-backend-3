@@ -162,8 +162,17 @@ docker run -d --name backend-ecommerce \
   -p 8080:8080 \
   -e MONGODB_URI=mongodb://host.docker.internal:27017/ecommerce \
   -e JWT_PRIVATE_KEY=tu-clave-secreta-min-32-chars \
-  backend-ecommerce:1.0.0
+  miguelz333/backend-ecommerce:1.0.0
 ```
+
+### Publicar en DockerHub
+
+```bash
+docker tag backend-ecommerce:1.0.0 miguelz333/backend-ecommerce:1.0.0
+docker login
+docker push miguelz333/backend-ecommerce:1.0.0
+
+Imagen pública: https://hub.docker.com/r/miguelz333/backend-ecommerce
 
 ### Health check
 
@@ -187,6 +196,23 @@ curl http://localhost:8080/
 - Variables de entorno para secretos (nunca en el repositorio)
 - Middleware centralizado de errores que oculta stack en producción
 - Roles diferenciados (`admin`, `user`)
+
+## Seguridad del Contenedor (Docker Scout)
+
+Se incluyen scripts para escanear la imagen Docker:
+
+```bash
+# Bash (Linux/macOS)
+./scripts/security-scan.sh
+
+# PowerShell (Windows)
+powershell -ExecutionPolicy Bypass -File scripts/security-scan.ps1
+```
+
+El escaneo analiza:
+- Vulnerabilidades CVEs por severidad (`docker scout cves`)
+- Recomendaciones de imagen base (`docker scout recommendations`)
+- Software Bill of Materials (`docker scout sbom`)
 
 ## Comandos útiles
 

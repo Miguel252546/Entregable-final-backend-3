@@ -2,7 +2,7 @@ import express from 'express';
 import productsRouter from './routes/products.router.js';
 import connectMongoDB from './config/db.js';
 import dotenv from 'dotenv';
-import { errorHandler } from './middlewares/error.midleware.js';
+import { errorHandler } from './middlewares/error.middleware.js';
 import cartRouter from './routes/carts.router.js';
 import { engine } from 'express-handlebars';
 import __dirname from '../dirname.js';
