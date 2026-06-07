@@ -1065,7 +1065,7 @@
       "name": "busybox-binsh",
       "version": "1.37.0-r30",
       "purl": "pkg:apk/alpine/busybox-binsh@1.37.0-r30?os_name=alpine&os_version=3.23",
-      "author": "S+Âren Tempel <soeren+alpine@soeren-tempel.net>",
+      "author": "S+ï¿½ren Tempel <soeren+alpine@soeren-tempel.net>",
       "description": "busybox ash /bin/sh",
       "licenses": [
         "GPL-2.0-only"
@@ -1103,7 +1103,7 @@
       "name": "busybox",
       "version": "1.37.0-r30",
       "purl": "pkg:apk/alpine/busybox@1.37.0-r30?os_name=alpine&os_version=3.23",
-      "author": "S+Âren Tempel <soeren+alpine@soeren-tempel.net>",
+      "author": "S+ï¿½ren Tempel <soeren+alpine@soeren-tempel.net>",
       "description": "Size optimized toolbox of many common UNIX utilities",
       "licenses": [
         "GPL-2.0-only"
@@ -1967,7 +1967,7 @@
       "name": "ssl_client",
       "version": "1.37.0-r30",
       "purl": "pkg:apk/alpine/ssl_client@1.37.0-r30?os_name=alpine&os_version=3.23",
-      "author": "S+Âren Tempel <soeren+alpine@soeren-tempel.net>",
+      "author": "S+ï¿½ren Tempel <soeren+alpine@soeren-tempel.net>",
       "description": "External ssl_client for busybox wget",
       "licenses": [
         "GPL-2.0-only"
@@ -3886,7 +3886,7 @@
       "name": "cross-spawn",
       "version": "7.0.3",
       "purl": "pkg:npm/cross-spawn@7.0.3",
-      "author": "Andr+® Cruz <andre@moxy.studio>",
+      "author": "Andr+ï¿½ Cruz <andre@moxy.studio>",
       "description": "Cross platform child_process#spawn and child_process#spawnSync",
       "licenses": [
         "MIT"
@@ -3910,7 +3910,7 @@
       "name": "cross-spawn",
       "version": "7.0.6",
       "purl": "pkg:npm/cross-spawn@7.0.6",
-      "author": "Andr+® Cruz <andre@moxy.studio>",
+      "author": "Andr+ï¿½ Cruz <andre@moxy.studio>",
       "description": "Cross platform child_process#spawn and child_process#spawnSync",
       "licenses": [
         "MIT"
@@ -5019,7 +5019,7 @@
       "name": "http-cache-semantics",
       "version": "4.1.1",
       "purl": "pkg:npm/http-cache-semantics@4.1.1",
-      "author": "Kornel Lesi+äski <kornel@geekhood.net> (https://kornel.ski/)",
+      "author": "Kornel Lesi+ï¿½ski <kornel@geekhood.net> (https://kornel.ski/)",
       "description": "Parses Cache-Control and other headers. Helps building correct HTTP caches and proxies",
       "licenses": [
         "BSD-2-Clause"
@@ -8664,7 +8664,7 @@
       "name": "shebang-command",
       "version": "2.0.0",
       "purl": "pkg:npm/shebang-command@2.0.0",
-      "author": "Kevin M+Ñrtensson <kevinmartensson@gmail.com> (github.com/kevva)",
+      "author": "Kevin M+ï¿½rtensson <kevinmartensson@gmail.com> (github.com/kevva)",
       "description": "Get the command from a shebang",
       "licenses": [
         "MIT"
@@ -9159,7 +9159,7 @@
       "name": "sprintf-js",
       "version": "1.1.3",
       "purl": "pkg:npm/sprintf-js@1.1.3",
-      "author": "Alexandru M-âr-â+Öteanu <hello@alexei.ro>",
+      "author": "Alexandru M-ï¿½r-ï¿½+ï¿½teanu <hello@alexei.ro>",
       "description": "JavaScript sprintf implementation",
       "licenses": [
         "BSD-3-Clause"
@@ -10200,7 +10200,7 @@
       "name": "yarn",
       "version": "1.22.22",
       "purl": "pkg:npm/yarn@1.22.22",
-      "description": "­ƒôª­ƒÉê Fast, reliable, and secure dependency management.",
+      "description": "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Fast, reliable, and secure dependency management.",
       "licenses": [
         "BSD-2-Clause"
       ],

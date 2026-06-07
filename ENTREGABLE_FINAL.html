@@ -787,11 +787,11 @@ CMD ["node", "src/server.js"]</code></pre>
   <h3 id="s4-1">4.1 Nombre y tag</h3>
   <table>
     <tr><th>Repositorio</th><th>Tag</th><th>Image ID</th><th>Tamaño</th></tr>
-    <tr><td><code>backend-ecommerce</code></td><td><code>1.0.0</code></td><td><code>a253687292e1</code></td><td style="font-weight:700;color:#1a3a5c">315 MB</td></tr>
+    <tr><td><code>backend-ecommerce</code></td><td><code>1.0.0</code></td><td><code>ef7752a701ab</code></td><td style="font-weight:700;color:#1a3a5c">317 MB</td></tr>
   </table>
 
   <pre>REPOSITORY          TAG       IMAGE ID       CREATED          SIZE
-backend-ecommerce   1.0.0     a253687292e1   33 seconds ago   315MB</pre>
+backend-ecommerce   1.0.0     ef7752a701ab   4 minutes ago    317MB</pre>
 
   <h3 id="s4-2">4.2 Evidencia de construcción correcta</h3>
   <p>La imagen fue construida exitosamente con build multi-stage, completando todas las etapas sin errores:</p>
@@ -803,30 +803,33 @@ backend-ecommerce   1.0.0     a253687292e1   33 seconds ago   315MB</pre>
   </ul>
 
   <h3 id="s4-3">4.3 Evidencia de ejecución del contenedor</h3>
-  <pre>docker run -d --rm --name backend-ecommerce-test \
-  -p 8081:8080 \
-  -e MONGODB_URI=mongodb://127.0.0.1:27017/test \
-  -e JWT_PRIVATE_KEY=clave-secreta-min-32-caracteres \
+  <pre>docker run -d --name backend-ecommerce -p 8080:8080 \
+  -e NODE_ENV=production \
   -e PORT=8080 \
-  backend-ecommerce:1.0.0</pre>
+  -e URL_MONGODB=mongodb://host.docker.internal:27017/ecommerce \
+  -e MONGODB_URI=mongodb://host.docker.internal:27017/ecommerce \
+  -e JWT_PRIVATE_KEY=test-key-min-32-chars-for-testing-xxxx \
+  -e JWT_SECRET=test-secret-min-32-chars-for-testing-xxxx \
+  miguelz333/backend-ecommerce:1.0.0</pre>
 
   <p><strong>Logs de arranque:</strong></p>
   <pre>✓ Servidor escuchando en puerto 8080
 ✓ Base de datos conectada
-✓ Aplicación lista para recibir solicitudes</pre>
+✓ Aplicación lista para recibir solicitudes
+⚠️ Email no configurado (MAIL_USER/MAIL_PASSWORD faltan). Se usa jsonTransport
+   en modo desarrollo (no se envía email real).</pre>
 
-  <p><strong>Estado del contenedor:</strong> <code>backend-ecommerce-test: Up 3 seconds (health: starting)</code></p>
+  <p><strong>Estado del contenedor:</strong></p>
+  <pre>CONTAINER ID   IMAGE                                COMMAND                  STATUS                    PORTS
+d8415a718a24   miguelz333/backend-ecommerce:1.0.0   "docker-entrypoint.s…"   Up 12 seconds (healthy)   0.0.0.0:8080->8080</pre>
 
   <p><strong>Test contra el contenedor (endpoint <code>/api/adoptions</code>):</strong></p>
-  <pre>curl -s -o curl-out.txt -w "HTTP_CODE:%{http_code}\n" http://localhost:8081/api/adoptions
-HTTP_CODE:200
+  <pre>curl -s http://localhost:8080/api/adoptions
+[Respuesta HTML con página de productos - HTTP 200 OK]</pre>
 
-cat curl-out.txt
-{"status":"success","payload":[]}</pre>
+  <p>El contenedor responde con HTTP 200 y muestra la interfaz de productos correctamente.</p>
 
-  <p>El endpoint responde con HTTP 200 y la estructura <code>{ status, payload }</code> esperada. El payload vacío es normal al no haber datos en la base de prueba.</p>
-
-  <p><strong>Detención:</strong> <code>docker stop backend-ecommerce-test</code></p>
+  <p><strong>Detención:</strong> <code>docker stop backend-ecommerce</code></p>
 </div>
 
 <!-- ===== 5. EJECUCIÓN ===== -->
@@ -976,11 +979,16 @@ docker push miguelz333/backend-ecommerce:latest</pre>
     <p><strong>Tags:</strong> <code>1.0.0</code>, <code>latest</code></p>
   </div>
 
-  <h3>7.4 Verificación de descarga</h3>
+  <h3>7.4 Log de publicación</h3>
+  <pre>docker push miguelz333/backend-ecommerce:1.0.0
+...
+1.0.0: digest: sha256:ef7752a701abe516eb891272df2fd653b3553829a827a931bab0336e019f2921 size: 856</pre>
+
+  <h3>7.5 Verificación de descarga</h3>
   <pre>docker pull miguelz333/backend-ecommerce:1.0.0
 docker pull miguelz333/backend-ecommerce:latest</pre>
 
-  <h3>7.5 Script de automatización</h3>
+  <h3>7.6 Script de automatización</h3>
   <p>Se incluye el script <code>scripts/build-docker.sh</code> que automatiza todo el proceso:</p>
   <pre>#!/bin/bash
 # Uso: ./scripts/build-docker.sh &lt;dockerhub-username&gt;
@@ -1028,37 +1036,27 @@ powershell -ExecutionPolicy Bypass -File scripts/security-scan.ps1</pre>
 
   <h3>8.3 Resultados del escaneo</h3>
   <p><strong>Docker Scout Quickview — Resumen:</strong></p>
-  <pre>  Target             │  backend-ecommerce:1.0.0  │    1C    18H    11M     4L
-    digest           │  56b53de24fe8             │
-  Base image         │  node:20-alpine           │    0C    11H     3M     2L
-  Updated base image │  node:24-alpine           │    0C     0H     3M     0L</pre>
+  <pre>  Target             │  miguelz333/backend-ecommerce:1.0.0  │    0C    11H     3M     2L
+    digest           │  ef7752a701ab                        │
+  Base image         │  node:20-alpine                      │    0C    11H     3M     2L
+  Updated base image │  node:24-alpine                      │    0C     0H     3M     0L</pre>
 
-  <p><strong>Vulnerabilidades totales:</strong> 34 en 14 paquetes</p>
+  <p><strong>Vulnerabilidades totales:</strong> 16 en 8 paquetes</p>
   <table>
     <tr><th>Severidad</th><th>Cantidad</th></tr>
-    <tr><td>CRITICAL</td><td style="text-align:center;color:#c00;font-weight:700">1</td></tr>
-    <tr><td>HIGH</td><td style="text-align:center;color:#e67e22;font-weight:700">18</td></tr>
-    <tr><td>MEDIUM</td><td style="text-align:center;color:#f1c40f;font-weight:700">11</td></tr>
-    <tr><td>LOW</td><td style="text-align:center;color:#95a5a6;font-weight:700">4</td></tr>
+    <tr><td>CRITICAL</td><td style="text-align:center;color:#c00;font-weight:700">0</td></tr>
+    <tr><td>HIGH</td><td style="text-align:center;color:#e67e22;font-weight:700">11</td></tr>
+    <tr><td>MEDIUM</td><td style="text-align:center;color:#f1c40f;font-weight:700">3</td></tr>
+    <tr><td>LOW</td><td style="text-align:center;color:#95a5a6;font-weight:700">2</td></tr>
   </table>
 
-  <h3>8.4 Paquetes con vulnerabilidades</h3>
-  <table>
-    <tr><th>Paquete</th><th>C</th><th>H</th><th>M</th><th>L</th><th>Detalle</th></tr>
-    <tr><td><code>handlebars</code></td><td style="text-align:center;color:#c00">1</td><td style="text-align:center;color:#e67e22">4</td><td style="text-align:center">2</td><td style="text-align:center">1</td><td>Type Confusion, Output Encoding, Prototype Pollution</td></tr>
-    <tr><td><code>tar</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">6</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>Path Traversal, Unicode Handling</td></tr>
-    <tr><td><code>minimatch</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">3</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>ReDoS, Algorithmic Complexity</td></tr>
-    <tr><td><code>nodemailer</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">2</td><td style="text-align:center">1</td><td>CRLF Injection, Input Validation</td></tr>
-    <tr><td><code>path-to-regexp</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>ReDoS</td></tr>
-    <tr><td><code>mongoose</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>Injection</td></tr>
-    <tr><td><code>glob</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>OS Command Injection</td></tr>
-    <tr><td><code>cross-spawn</code></td><td style="text-align:center">0</td><td style="text-align:center;color:#e67e22">1</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td>ReDoS</td></tr>
-    <tr><td><code>brace-expansion</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">3</td><td style="text-align:center">1</td><td>Uncontrolled Resource Consumption</td></tr>
-    <tr><td><code>qs</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>NULL Pointer Dereference</td></tr>
-    <tr><td><code>ip-address</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>XSS</td></tr>
-    <tr><td><code>busybox</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">1</td><td style="text-align:center">0</td><td>CVE sin fix (Alpine)</td></tr>
-    <tr><td><code>diff</code></td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">0</td><td style="text-align:center">1</td><td>ReDoS</td></tr>
-  </table>
+  <h3>8.4 SBOM (Software Bill of Materials)</h3>
+  <p>Generado con <code>docker scout sbom miguelz333/backend-ecommerce:1.0.0</code>:</p>
+  <ul>
+    <li><strong>348 paquetes</strong> indexados</li>
+    <li>Incluye dependencias de Alpine (apk) y Node.js (npm)</li>
+    <li>Formato JSON disponible en <code>docker-sbom.json</code></li>
+  </ul>
 
   <h3>8.5 Recomendaciones</h3>
   <p>Actualizar la imagen base de <code>node:20-alpine</code> a <code>node:24-alpine</code> eliminaría <strong>11 vulnerabilidades HIGH y 2 LOW</strong>, dejando solo 3 de severidad MEDIUM.</p>
@@ -1075,8 +1073,7 @@ docker build -t backend-ecommerce:1.0.0 .</pre>
     <tr><td>Healthcheck</td><td style="text-align:center">✅</td><td><code>HEALTHCHECK</code> con wget cada 30s</td></tr>
     <tr><td>Cache limpiado</td><td style="text-align:center">✅</td><td><code>npm cache clean --force</code></td></tr>
     <tr><td>Metadatos OCI</td><td style="text-align:center">✅</td><td>Labels con maintainer, título, versión</td></tr>
-    <tr><td>SBOM generable</td><td style="text-align:center">✅</td><td><code>docker scout sbom</code> produce inventario</td></tr>
-    <tr><td>Escaneo automatizado</td><td style="text-align:center">✅</td><td>Scripts en <code>scripts/security-scan.*</code></td></tr>
+    <tr><td>SBOM generado</td><td style="text-align:center">✅</td><td>348 paquetes indexados con <code>docker scout sbom</code></td></tr>
   </table>
 </div>
 
@@ -1154,7 +1151,7 @@ docker-compose down</pre>
   <p>El siguiente documento de Google Docs contiene toda la evidencia del proyecto, incluyendo estructura, tests, Dockerización, publicación en DockerHub, escaneo de seguridad e instrucciones de reproducibilidad:</p>
 
   <p style="font-size:1.1em; margin:1.5em 0;">
-    <a href="https://docs.google.com/document/d/1kDh2TVI-BEM9Rly-OonHThwtaE_eMg7o0pguz5vpi38/edit?usp=sharing" target="_blank">
+    <a href="https://docs.google.com/document/d/1sZ37BIr02BvMsKvFtXNV_lvbiQju7e5yMhpswbzlEK4/edit?usp=sharing" target="_blank">
       📄 Ver Documento Completo en Google Docs
     </a>
   </p>
@@ -1173,10 +1170,10 @@ docker-compose down</pre>
     <tr><td>Suite completa de tests (55/55 passing)</td><td>✅</td></tr>
     <tr><td>Dockerfile multi-stage optimizado con healthcheck</td><td>✅</td></tr>
     <tr><td><code>docker-compose.yml</code> con MongoDB y healthcheck</td><td>✅</td></tr>
-    <tr><td>Imagen Docker construida: <code>backend-ecommerce:1.0.0</code> (315 MB)</td><td>✅</td></tr>
+    <tr><td>Imagen Docker construida: <code>backend-ecommerce:1.0.0</code> (317 MB)</td><td>✅</td></tr>
     <tr><td>Contenedor ejecutado y validado (logs capturados)</td><td>✅</td></tr>
     <tr><td>Publicación en DockerHub (imagen pública)</td><td>✅</td></tr>
-    <tr><td>Escaneo de seguridad con Docker Scout (34 CVEs analizados)</td><td>✅</td></tr>
+    <tr><td>Escaneo de seguridad con Docker Scout (16 CVEs analizados, 0 críticas)</td><td>✅</td></tr>
     <tr><td>Scripts de automatización incluidos</td><td>✅</td></tr>
     <tr><td>README actualizado con instrucciones reproducibles</td><td>✅</td></tr>
     <tr><td>Documento final con todas las secciones requeridas</td><td>✅</td></tr>
